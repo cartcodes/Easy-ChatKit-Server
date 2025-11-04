@@ -62,4 +62,41 @@ After deploying, embed the generated code on any website - the server handles th
 
 ## Security
 
-Your API keys stay on the server. Browsers only receive temporary session credentials. The server uses OpenAI's recommended security pattern for ChatKit deployments.
+### Domain Protection
+
+ChatKit uses **domain allowlisting** to control where your chat widget can be embedded:
+
+1. **Register your domains** in the OpenAI Platform (ChatKit settings)
+2. **Add your DOMAIN_KEY** to your server's environment variables
+3. **ChatKit enforces** that the widget only works on approved domains
+
+**Important:** The `DOMAIN_KEY` is a public key that you include in your server configuration. It's tied to your domain allowlist on OpenAI's side. When a browser loads the ChatKit widget, OpenAI validates that the request comes from an allowed domain. This prevents unauthorized websites from using your ChatKit deployment.
+
+Without a valid `DOMAIN_KEY` for the requesting domain, the widget will not load - even if someone copies your embed code.
+
+### API Key Protection
+
+Your `OPENAI_API_KEY` never leaves the server:
+
+- **Server-side only** - API key is used exclusively in server.ts to create sessions
+- **Not in browser** - Never sent to clients or embedded in JavaScript
+- **Environment variable** - Stored securely in .env (excluded from git)
+
+### Session Flow (OpenAI's Recommended Pattern)
+
+1. User visits your website with the embedded ChatKit widget
+2. Browser requests a session from your server (`/api/chatkit/session`)
+3. Server uses your API key to create a temporary session with OpenAI
+4. Server returns a short-lived `client_secret` to the browser
+5. ChatKit widget uses this temporary credential to connect
+
+**What the browser receives:**
+- `client_secret` - Temporary session credential (expires)
+- Widget configuration - Theme, prompts, settings (no API keys)
+
+**What stays private:**
+- Your OpenAI API key
+- Your ChatKit workflow ID
+- Internal server configuration
+
+This architecture ensures your credentials remain secure while allowing public-facing chat widgets. The domain key adds an additional layer of protection by restricting which websites can even request sessions from your server.
