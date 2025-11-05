@@ -27,7 +27,7 @@ cp .env.example .env
 
 3. **Add your ChatKit config**
 - Open `config.ts`
-- Paste your ChatKitOptions from OpenAI Agent Builder
+- Paste your ChatKit code into that file from [playground](https://chatkit.studio/playground)
 
 4. **Run locally**
 ```bash
